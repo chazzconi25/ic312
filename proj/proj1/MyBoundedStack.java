@@ -1,44 +1,49 @@
 import java.util.NoSuchElementException;
-
+@SuppressWarnings("unchecked")
 public class MyBoundedStack<T> implements BoundedStack {
     private T[] elements;
-    private int index = 0;
     private int size = 0;
 
     @Override
     public void push(Object item) {
         if(size == elements.length) {
-            @SuppressWarnings("unchecked")
             T[] tmp = (T[])(new Object[elements.length*2]);
             for(int i = 0; i < elements.length; i++) {
                 tmp[i] = elements[i];
             }
             elements = tmp;
         }
+        elements[size] = (T)item;
+        size++;
     }
 
     @Override
     public Object pop() throws NoSuchElementException {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'pop'");
+        if(size == 0) {
+            throw new NoSuchElementException();
+        }
+        return elements[size--];
     }
 
     @Override
     public void setCapacity(int capacity) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'setCapacity'");
+        if(capacity < size) {
+            for(int i = capacity; i < size; i++) {
+                elements[i] = null;
+            }
+        }
+        size = capacity;
     }
 
     @Override
     public boolean isEmpty() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'isEmpty'");
+        return size == 0;
     }
 
     @Override
     public void clear() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'clear'");
+        T[] tmp = (T[])(new Object[size]);
+        elements = tmp;
     }
     
 }
