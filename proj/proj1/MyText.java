@@ -16,8 +16,11 @@ public class MyText implements Text {
 
     @Override
     public void insert(char c) {
-        if(head == null) {
+        if(head == null || pcur == null) {
             head = new Node(c, null, null);
+            if(pcur == null) {
+                head.next = cur;
+            }//AAAAA WATCH OUT THIS IS FUCKED MAYBE
             pcur = head;
             cur = head.next;
         } else {
@@ -38,7 +41,9 @@ public class MyText implements Text {
         if(cur.prev == null) {
             head = cur.next;
             cur = cur.next;
-            cur.prev = null;
+            if(cur != null) {
+                cur.prev = null;
+            }
         } else {
             cur = cur.next;
             pcur.next = cur;
