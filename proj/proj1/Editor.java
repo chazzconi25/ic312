@@ -2,7 +2,7 @@ import java.util.Scanner;
 
 public class Editor {
   private Text txt = new MyText();
-
+  private BoundedStack actns = new BoundedStack<Action>(4);
   /** Displays information on available commands.
    * THis will NOT be part of any autotesting.
    * You can (and should!) update as new commands are enabled.
@@ -34,6 +34,7 @@ public class Editor {
    */
   public boolean processLine(String line) {
     if (line.length() == 0) line = "h";
+    actns.push(new Action(line, txt));
     switch (line.charAt(0)) {
       case 'i':
         if (line.length() == 2)
@@ -58,9 +59,13 @@ public class Editor {
       case 'p':
         txt.print();
         break;
+      case 'u':
+
+        break;
       case 'q':
         return false;
       default:
+        actns.pop();
         showHelp();
     }
     return true;

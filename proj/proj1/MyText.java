@@ -18,10 +18,11 @@ public class MyText implements Text {
     public void insert(char c) {
         if(head == null || pcur == null) {
             head = new Node(c, null, null);
-            if(pcur == null) {
-                head.next = cur;
-            }//AAAAA WATCH OUT THIS IS FUCKED MAYBE
             pcur = head;
+            if(cur != null) {
+                head.next = cur;
+                cur.prev = head;
+            }
             cur = head.next;
         } else {
             pcur.next = new Node(c, pcur, cur);

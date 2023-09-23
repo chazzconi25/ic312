@@ -6,6 +6,13 @@
     "configurations": [
         {
             "type": "java",
+            "name": "MyBoundedStack",
+            "request": "launch",
+            "mainClass": "MyBoundedStack",
+            "projectName": "proj1_fca199cc"
+        },
+        {
+            "type": "java",
             "name": "Current File",
             "request": "launch",
             "mainClass": "${file}"

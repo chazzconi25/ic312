@@ -1,38 +1,53 @@
 import java.util.NoSuchElementException;
 @SuppressWarnings("unchecked")
-public class MyBoundedStack<T> implements BoundedStack {
+public class MyBoundedStack<T> implements BoundedStack<T> {
     private T[] elements;
+    private int head = 0;
     private int size = 0;
+    private int cap;
 
-    @Override
-    public void push(Object item) {
-        if(size == elements.length) {
-            T[] tmp = (T[])(new Object[elements.length*2]);
-            for(int i = 0; i < elements.length; i++) {
-                tmp[i] = elements[i];
-            }
-            elements = tmp;
-        }
-        elements[size] = (T)item;
-        size++;
+    public MyBoundedStack(int cap) {
+        elements = (T[])new Object[cap];
+        this.cap = cap;
     }
 
     @Override
-    public Object pop() throws NoSuchElementException {
-        if(size == 0) {
+    public void push(T item) {
+        elements[(head + size) % cap] = item;
+        if(size == cap) {
+            head++;
+            head = (head + size) % cap;
+        } else {
+            size++;
+        }
+    }
+
+    @Override
+    public T pop() throws NoSuchElementException {
+        if(elements[head] == null) {
             throw new NoSuchElementException();
         }
-        return elements[size--];
+        //size--;
+        T tmp = elements[(head + --size) % cap];
+        elements[(head + size) % cap] = null;
+        return tmp;
     }
 
     @Override
-    public void setCapacity(int capacity) {
-        if(capacity < size) {
-            for(int i = capacity; i < size; i++) {
-                elements[i] = null;
-            }
+    public void setCapacity(int capacity) {//O(n)
+        int fsize = size;
+        for(int i = 0; i < (fsize - capacity); i++) {
+            elements[head] = null;
+            head = (++head%cap);
+            size--;
         }
-        size = capacity;
+        T[] tmp = (T[]) new Object[capacity];
+        for(int i = 0; i < size; i++){
+            tmp[i] = elements[(head+i)% cap];
+        }
+        elements = tmp;
+        head = 0;
+        cap = capacity;
     }
 
     @Override
@@ -42,8 +57,13 @@ public class MyBoundedStack<T> implements BoundedStack {
 
     @Override
     public void clear() {
-        T[] tmp = (T[])(new Object[size]);
+        T[] tmp = (T[]) new Object[cap];
         elements = tmp;
+        size = 0;
+        head = 0;
     }
-    
+
+    public static void main(String [] args) {
+        BoundedStack stk = new MyBoundedStack<>(3);
+    }
 }
