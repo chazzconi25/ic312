@@ -103,6 +103,7 @@ public class MyText implements Text {
         }
         System.out.println("^");
     }
+
     private class Node {
         private char data;
         private Node next;
@@ -114,5 +115,4 @@ public class MyText implements Text {
           this.prev = prev;
         }
       }
-    
 }

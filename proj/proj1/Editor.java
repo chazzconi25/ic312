@@ -2,7 +2,8 @@ import java.util.Scanner;
 
 public class Editor {
   private Text txt = new MyText();
-  private BoundedStack actns = new BoundedStack<Action>(4);
+  private BoundedStack actns = new MyBoundedStack<Action>(50);
+  private BoundedStack redo = new MyBoundedStack<Action>(50);
   /** Displays information on available commands.
    * THis will NOT be part of any autotesting.
    * You can (and should!) update as new commands are enabled.
@@ -34,38 +35,72 @@ public class Editor {
    */
   public boolean processLine(String line) {
     if (line.length() == 0) line = "h";
-    actns.push(new Action(line, txt));
+    
     switch (line.charAt(0)) {
       case 'i':
-        if (line.length() == 2)
+        if (line.length() == 2) {
           txt.insert(line.charAt(1));
-        else showError();
+          actns.push(new Action(line, txt));
+          redo.clear();
+        } else {
+          showError();
+        }
         break;
       case 'd':
-        if (txt.canMoveRight())
+        if (txt.canMoveRight()){
+          actns.push(new Action(line + txt.get(), txt));
           txt.delete();
-        else showError();
+          redo.clear();
+        } else {
+          showError();
+        }
         break;
       case '<':
-        if (txt.canMoveLeft())
+        if (txt.canMoveLeft()){
           txt.moveLeft();
-        else showError();
+          actns.push(new Action(line, txt));
+          redo.clear();
+        }
+        else {
+          showError();
+        }
         break;
       case '>':
-        if (txt.canMoveRight())
+        if (txt.canMoveRight()) {
           txt.moveRight();
-        else showError();
+          actns.push(new Action(line, txt));
+          redo.clear();
+        } else {
+          showError();
+        }
         break;
       case 'p':
         txt.print();
         break;
       case 'u':
-
+        try {
+          Action tmp = (Action)actns.pop();
+          redo.push(tmp);
+          tmp.undo();
+        } catch (Exception e) {
+          showError();
+        }
+        break;
+      case 'c':
+        actns.setCapacity(Integer.parseInt(line.substring(1)));
+        break;
+      case 'r':
+        try {
+          Action tmp = (Action)redo.pop();
+          actns.push(tmp);
+          tmp.redo();
+        } catch (Exception e) {
+          showError();
+        }
         break;
       case 'q':
         return false;
       default:
-        actns.pop();
         showHelp();
     }
     return true;
@@ -84,4 +119,48 @@ public class Editor {
       }
     } while (editor.processLine(in.nextLine()));
   }
+  public class Action {
+    private String sym;
+    private Text editor;
+
+    public Action(String sym, Text editor) {
+        this.sym = sym;
+        this.editor = editor;
+    }
+
+    public void undo() {
+        switch(sym.charAt(0)) {
+          case 'i':
+            editor.moveLeft();
+            editor.delete();
+            break;
+          case 'd':
+            editor.insert(sym.charAt(1));
+            editor.moveLeft();
+            break;
+          case '<':
+            editor.moveRight();
+            break;
+          case '>':
+            editor.moveLeft();
+            break;
+        }
+    }
+    public void redo() {
+        switch(sym.charAt(0)) {
+          case 'i':
+            txt.insert(sym.charAt(1));
+            break;
+          case 'd':
+            txt.delete();
+            break;
+          case '<':
+            editor.moveLeft();
+            break;
+          case '>':
+            editor.moveRight();
+            break;
+        }
+    }
+}
 }
