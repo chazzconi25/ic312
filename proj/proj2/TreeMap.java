@@ -1,8 +1,6 @@
-import java.util.Deque;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.ArrayList;
 
-public class BSTMap<K extends Comparable<K>, V> implements Map<K,V> {
+public class TreeMap<K extends Comparable<K>, V> implements Map<K,V> {
   // private classes and fields here
   private Node root = null;
   private int size = 0;
@@ -12,15 +10,19 @@ public class BSTMap<K extends Comparable<K>, V> implements Map<K,V> {
     private V value;
     private Node left;
     private Node right;
+    private int height;
     public Node(K key, V value) {
       this.key = key;
       this.value = value;
+      height = 0;
     }
     public K getKey() { return key; }
     public V getValue() { return value; }
-  
+    public int getHeight() { return height; }
+    
     public void setKey(K key) { this.key = key; }
     public void setValue(V value) { this.value = value; }
+    public void setHeight(int height) { this.height = height; }
   }
 
   @Override
@@ -78,8 +80,61 @@ public class BSTMap<K extends Comparable<K>, V> implements Map<K,V> {
     } else if(curr.getKey().compareTo(key) > 0){
       curr.left = put(key, value, curr.left);
     }
-    return curr;
+    return rotate(curr);
   }
+
+  private Node rotate(Node root) {
+    if(bal(root) == -2) {
+      if(bal(root.left) == 1) {
+        root.left = lRotate(root.left);
+      }
+      root = rRotate(root);
+    } else if(bal(root) == 2) {
+      if(bal(root.right) == -1) {
+        root.right = rRotate(root.right);
+      }
+      root = lRotate(root);
+    }
+    root.setHeight(height(root));
+    return root;
+  }
+
+  private int bal (Node root) {
+    return height(root.right) - height(root.left);
+  }
+
+  private int height(Node n) {
+    if (n == null) return -1;
+    int lh = -1;
+    int rh = -1;
+    if(n.left != null) {
+      lh = n.left.getHeight();
+    }
+    if(n.right != null) {
+      rh = n.right.getHeight();
+    }
+    return Math.max(lh, rh) + 1;
+  }
+
+  private Node lRotate(Node oldRoot) {    // oldRoot is node "x" in the image above.
+  Node newRoot = oldRoot.right; // newRoot is node "y" in the image above.
+  Node middle = newRoot.left;   // middle is the subtree B
+  newRoot.left = oldRoot;
+  oldRoot.right = middle;
+  newRoot.setHeight(height(newRoot));
+  oldRoot.setHeight(height(oldRoot));
+  return newRoot;
+}
+
+private Node rRotate(Node oldRoot) {    // oldRoot is node "x" in the image above.
+  Node newRoot = oldRoot.left; // newRoot is node "y" in the image above.
+  Node middle = newRoot.right;   // middle is the subtree B
+  newRoot.right = oldRoot;
+  oldRoot.left = middle;
+  newRoot.setHeight(height(newRoot));
+  oldRoot.setHeight(height(oldRoot));
+  return newRoot;
+}
 
   @Override
   public int size() {
@@ -87,18 +142,18 @@ public class BSTMap<K extends Comparable<K>, V> implements Map<K,V> {
   }
 
   
-  public Deque<K> traverse() {
-    Deque<K> ret = new LinkedList<K>();
+  public ArrayList<K> keys() {
+    ArrayList<K> ret = new ArrayList<K>();
     traverse(root, ret);
     return ret;
   }
 
-  private void traverse(Node curr, Deque<K> ret) {
+  private void traverse(Node curr, ArrayList<K> ret) {
     if(curr == null) {
       return;
     }
     traverse(curr.left, ret);
-    ret.addLast(curr.getKey());
+    ret.add(curr.getKey());
     traverse(curr.right, ret);
   }
 
@@ -139,11 +194,5 @@ public class BSTMap<K extends Comparable<K>, V> implements Map<K,V> {
       return cur.key;
     else
       return getMin(cur.left);
-  }
-
-  @Override
-  public List<K> keys() {
-    // TODO Auto-generated method stub
-    throw new UnsupportedOperationException("Unimplemented method 'keys'");
   }
 }
