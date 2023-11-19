@@ -1,6 +1,25 @@
+import java.util.ArrayList;
+import java.util.Stack;
+
 public class CycleFinder {
   public static boolean hasCycle(Graph graph, String start) {
-    // TODO you fill in this function
+    ArrayList<String> visited = new ArrayList<String>();
+    Stack<String> fringe = new Stack<String>();
+
+    fringe.push(start);
+    while(!fringe.empty()) {
+      String uu = fringe.pop();
+
+      if(!visited.contains(uu)) {
+        visited.add(uu);
+        for(String vv : graph.neighbors(uu)) {
+          if(graph.neighbors(vv).contains(start)) {
+            return true;
+          }
+          fringe.push(vv);
+        }
+      }
+    }
     return false;
   }
 
